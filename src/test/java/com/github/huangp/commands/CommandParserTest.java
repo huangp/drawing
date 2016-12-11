@@ -26,6 +26,13 @@ public class CommandParserTest {
     }
 
     @Test
+    public void emptyInputWillDoNothing() {
+        Drawable drawable = parser.makeDrawable("");
+
+        assertThat(drawable).isNull();
+    }
+
+    @Test
     public void canParseCanvasInstruction() {
         Drawable drawable = parser.makeDrawable("C 20 4");
 

@@ -10,9 +10,9 @@ import javaslang.collection.Vector;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-public class VerticalLine implements Drawable {
+public class VerticalLine extends Line implements Drawable {
     private static final Logger log =
-            LoggerFactory.getLogger(HorizontalLine.class);
+            LoggerFactory.getLogger(VerticalLine.class);
     private final int rowStartNum;
     private final int rowEndNum;
     private final int colNum;

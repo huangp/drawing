@@ -3,11 +3,8 @@ package com.github.huangp.components;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.deploy.security.ruleset.ExceptionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -81,13 +81,20 @@ public class CommandParser {
             return canvas;
         }
 
-
         // start the real work
         Tuple2<CommandInstruction, Method> commandInstructionToMethod =
                 entryOpt.get();
         List<String> argsValue = parts.pop();
         CommandInstruction cmdInstruction = commandInstructionToMethod._1();
         log.debug("about to handle: {}", cmdInstruction.drawable().getName());
+
+
+        boolean isDrawingCanvas = isDrawingCanvas(cmdInstruction.drawable());
+        if (!isDrawingCanvas && canvas == null) {
+            log.warn("you need to have a canvas first");
+            return null;
+        }
+
         Array<Arg> args = Array.of(cmdInstruction.arguments());
         if (args.length() != argsValue.length()) {
             log.warn("invalid number of arguments: required {}, given {}", args.length(), parts.tail().length());
@@ -113,20 +120,21 @@ public class CommandParser {
         Drawable drawable = invokeFactoryMethod(factorMethod, values, cmdInstruction.drawable());
         if (drawable instanceof Canvas) {
             canvas = (Canvas) drawable;
-        } else if (canvas == null) {
-            log.warn("you need to have a canvas first");
-            return null;
         }
         return drawable;
     }
 
+    private static boolean isDrawingCanvas(Class<? extends Drawable> drawable) {
+        return Canvas.class.isAssignableFrom(drawable);
+    }
+
     private Drawable invokeFactoryMethod(Method factorMethod,
-            Array<Object> argValues, Class<? extends Drawable> handler) {
+            Array<Object> argValues, Class<? extends Drawable> drawable) {
         try {
-            return handler.cast(factorMethod.invoke(new Object(), argValues.toJavaArray()));
+            return drawable.cast(factorMethod.invoke(new Object(), argValues.toJavaArray()));
         } catch (IllegalAccessException | InvocationTargetException e) {
             // not nice that it's using exception to control flow...
-            if (handler.isAssignableFrom(Canvas.class) && Throwables.getRootCause(e) instanceof IllegalArgumentException) {
+            if (isDrawingCanvas(drawable) && Throwables.getRootCause(e) instanceof IllegalArgumentException) {
                 log.warn("invalid arguments for drawing a canvas");
             } else {
                 log.error("can not invoke factory method");
@@ -146,5 +154,9 @@ public class CommandParser {
 
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    public void setCanvas(Canvas canvas) {
+        this.canvas = canvas;
     }
 }

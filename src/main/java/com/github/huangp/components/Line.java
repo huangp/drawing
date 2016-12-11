@@ -9,14 +9,14 @@ import com.google.common.base.Preconditions;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@CommandInstruction(instruction = "L", drawable = Drawable.class, arguments = {
+@CommandInstruction(instruction = "L", drawable = Line.class, arguments = {
         @Arg(value = PositiveIntValueConverter.class),
         @Arg(value = PositiveIntValueConverter.class),
         @Arg(value = PositiveIntValueConverter.class),
         @Arg(value = PositiveIntValueConverter.class)
 }
 )
-public final class Line {
+public abstract class Line implements Drawable {
 
     @CommandInitializer
     public static Drawable instance(int x1, int y1, int x2, int y2) {

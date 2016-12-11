@@ -67,7 +67,7 @@ public class BucketFill implements Drawable {
             copy = copy.append(line);
         }
 
-        log.info("before BFT: {}", copy);
+        log.debug("before BFT: {}", copy);
         Queue<CoordinatedPoint> queue = Queue.empty();
         CoordinatedPoint start = copy.get(y).get(x);
         queue = queue.enqueue(start);
