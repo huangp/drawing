@@ -2,6 +2,10 @@ package com.github.huangp.components;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.huangp.commands.Arg;
+import com.github.huangp.commands.CommandInitializer;
+import com.github.huangp.commands.CommandInstruction;
+import com.github.huangp.commands.PositiveIntValueConverter;
 import com.github.huangp.components.point.Point;
 import com.github.huangp.components.point.RectanglePoint;
 import com.google.common.base.Preconditions;
@@ -10,6 +14,12 @@ import javaslang.collection.Vector;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
+@CommandInstruction(instruction = "R", handler = Rectangle.class, arguments = {
+        @Arg(PositiveIntValueConverter.class),
+        @Arg(PositiveIntValueConverter.class),
+        @Arg(PositiveIntValueConverter.class),
+        @Arg(PositiveIntValueConverter.class)
+})
 public class Rectangle implements Drawable {
     private static final Logger log = LoggerFactory.getLogger(Rectangle.class);
     private final int topLeftX;
@@ -19,13 +29,19 @@ public class Rectangle implements Drawable {
 
     public Rectangle(int topLeftX, int topLeftY, int bottomRightX,
             int bottomRightY) {
-        Preconditions.checkArgument(topLeftX > 0 && bottomRightX > 0);
-        Preconditions.checkArgument(
-                topLeftX < bottomRightX && topLeftY < bottomRightY);
         this.topLeftX = topLeftX;
         this.topLeftY = topLeftY;
         this.bottomRightX = bottomRightX;
         this.bottomRightY = bottomRightY;
+    }
+
+    @CommandInitializer
+    public static Drawable instance(int topLeftX, int topLeftY, int bottomRightX,
+            int bottomRightY) {
+        Preconditions.checkArgument(topLeftX > 0 && bottomRightX > 0 && topLeftY > 0 && bottomRightY > 0, "x1, y1, x2, y2 must all be greater than 0");
+        Preconditions.checkArgument(
+                topLeftX < bottomRightX && topLeftY < bottomRightY);
+        return new Rectangle(topLeftX, topLeftY, bottomRightX, bottomRightY);
     }
 
     @Override

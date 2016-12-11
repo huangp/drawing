@@ -2,9 +2,15 @@ package com.github.huangp.components;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.huangp.commands.Arg;
+import com.github.huangp.commands.CommandInitializer;
+import com.github.huangp.commands.CommandInstruction;
+import com.github.huangp.commands.PositiveIntValueConverter;
+import com.github.huangp.commands.SingleCharStringValueConverter;
 import com.github.huangp.components.point.ColorPoint;
 import com.github.huangp.components.point.Point;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import javaslang.Tuple2;
 import javaslang.collection.Queue;
 import javaslang.collection.Vector;
@@ -12,6 +18,11 @@ import javaslang.collection.Vector;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
+@CommandInstruction(instruction = "B", handler = BucketFill.class, arguments = {
+        @Arg(PositiveIntValueConverter.class),
+        @Arg(PositiveIntValueConverter.class),
+        @Arg(SingleCharStringValueConverter.class)
+})
 public class BucketFill implements Drawable {
     private static final Logger log = LoggerFactory.getLogger(BucketFill.class);
     private final int x;
@@ -19,10 +30,16 @@ public class BucketFill implements Drawable {
     private final String color;
 
     public BucketFill(int x, int y, String color) {
-        Preconditions.checkArgument(x > 0 && y > 0);
+        Preconditions.checkArgument(x > 0 && y > 0, "x and y must all be greater than 0");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(color) && color.length() == 1, "color must be exactly one character");
         this.x = x;
         this.y = y;
         this.color = color;
+    }
+
+    @CommandInitializer
+    public static Drawable instance(int x, int y, String color) {
+        return new BucketFill(x, y, color);
     }
 
     @Override

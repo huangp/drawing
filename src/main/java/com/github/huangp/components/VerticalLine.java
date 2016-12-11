@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import com.github.huangp.components.point.LinePoint;
 import com.github.huangp.components.point.Point;
 import com.google.common.base.Preconditions;
-import javaslang.collection.List;
 import javaslang.collection.Vector;
 
 /**
@@ -31,7 +30,7 @@ public class VerticalLine implements Drawable {
         Vector<Vector<Point>> current = canvas.getPoints();
         Vector<Vector<Point>> newPoints = current;
 
-        if (rowStartNum >= canvas.width() || rowEndNum >= canvas.width()) {
+        if (rowStartNum >= canvas.height() || rowEndNum >= canvas.height()) {
             log.warn("invalid drawing instruction: row start and end are not within canvas boundary");
             return canvas;
         }
