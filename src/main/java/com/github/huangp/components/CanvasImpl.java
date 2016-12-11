@@ -15,7 +15,7 @@ import javaslang.collection.Vector;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@CommandInstruction(instruction = "C", handler = CanvasImpl.class, arguments = {
+@CommandInstruction(instruction = "C", drawable = CanvasImpl.class, arguments = {
         @Arg(PositiveIntValueConverter.class),
         @Arg(PositiveIntValueConverter.class)
 })
@@ -33,8 +33,8 @@ public class CanvasImpl implements Canvas {
                 () -> Vector.<Point>fill(width - 2, UnpaintedPoint::new)
                         .append(new BarPoint())
                         .prepend(new BarPoint()))
-        .append(Vector.fill(width, Hyphen::new))
-        .prepend(Vector.fill(width, Hyphen::new));
+                .append(Vector.fill(width, Hyphen::new))
+                .prepend(Vector.fill(width, Hyphen::new));
 
     }
 
@@ -52,25 +52,30 @@ public class CanvasImpl implements Canvas {
 
 
     @Override
-    public int width() {
-        return width;
-    }
-
-    @Override
-    public int height() {
-        return height;
-    }
-
-    @Override
-    public boolean isColumnDrawable(int colNum) {
+    public boolean isColumnWithinBoundary(int colNum) {
         // can not draw on the left and right edge
-        return colNum > 0 && colNum < width() - 1;
+        return colNum > 0 && colNum < maxDrawableColumn();
+    }
+
+    @Override
+    public boolean isRowWithinBoundary(int rowNum) {
+        return rowNum > 0 && rowNum <= maxDrawableRow();
     }
 
 
     @Override
     public Vector<Vector<Point>> getPoints() {
         return points;
+    }
+
+    @Override
+    public int maxDrawableColumn() {
+        return width - 1;
+    }
+
+    @Override
+    public int maxDrawableRow() {
+        return height;
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@CommandInstruction(instruction = "L", handler = HorizontalLine.class, arguments = {
+@CommandInstruction(instruction = "L", drawable = Drawable.class, arguments = {
         @Arg(value = PositiveIntValueConverter.class),
         @Arg(value = PositiveIntValueConverter.class),
         @Arg(value = PositiveIntValueConverter.class),

@@ -18,7 +18,7 @@ import javaslang.collection.Vector;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@CommandInstruction(instruction = "B", handler = BucketFill.class, arguments = {
+@CommandInstruction(instruction = "B", drawable = BucketFill.class, arguments = {
         @Arg(PositiveIntValueConverter.class),
         @Arg(PositiveIntValueConverter.class),
         @Arg(SingleCharStringValueConverter.class)
@@ -31,7 +31,7 @@ public class BucketFill implements Drawable {
 
     public BucketFill(int x, int y, String color) {
         Preconditions.checkArgument(x > 0 && y > 0, "x and y must all be greater than 0");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(color) && color.length() == 1, "color must be exactly one character");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(color) && color.trim().length() == 1, "color must be exactly one character");
         this.x = x;
         this.y = y;
         this.color = color;
@@ -46,7 +46,7 @@ public class BucketFill implements Drawable {
     public Canvas draw(Canvas canvas) {
         Vector<Vector<Point>> current = canvas.getPoints();
 
-        if (!canvas.isColumnDrawable(x) || y >= canvas.height()) {
+        if (!canvas.isColumnWithinBoundary(x) || !canvas.isRowWithinBoundary(y)) {
             log.warn("({}, {}) is not a valid point in the canvas", x, y);
             return canvas;
         }
@@ -61,7 +61,7 @@ public class BucketFill implements Drawable {
 
         for (int row = 0; row < current.length(); row++) {
             Vector<CoordinatedPoint> line = Vector.empty();
-            for (int col = 0; col < canvas.width(); col++) {
+            for (int col = 0; col <= canvas.maxDrawableColumn(); col++) {
                 line = line.append(new CoordinatedPoint(current.get(row).get(col), col, row));
             }
             copy = copy.append(line);
@@ -129,7 +129,7 @@ public class BucketFill implements Drawable {
     }
 
     private static boolean hasPointOnTheRight(int x, Canvas canvas) {
-        return canvas.isColumnDrawable(moveRight(x));
+        return canvas.isColumnWithinBoundary(moveRight(x));
     }
 
     private static int moveRight(int x) {
@@ -157,7 +157,7 @@ public class BucketFill implements Drawable {
     }
 
     private static boolean hasPointUnder(int y, Canvas canvas) {
-        return moveDown(y) <= canvas.height();
+        return moveDown(y) <= canvas.maxDrawableRow();
     }
 
     private static class CoordinatedPoint {

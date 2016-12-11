@@ -14,7 +14,7 @@ import javaslang.collection.Vector;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@CommandInstruction(instruction = "R", handler = Rectangle.class, arguments = {
+@CommandInstruction(instruction = "R", drawable = Rectangle.class, arguments = {
         @Arg(PositiveIntValueConverter.class),
         @Arg(PositiveIntValueConverter.class),
         @Arg(PositiveIntValueConverter.class),
@@ -29,6 +29,7 @@ public class Rectangle implements Drawable {
 
     public Rectangle(int topLeftX, int topLeftY, int bottomRightX,
             int bottomRightY) {
+        Preconditions.checkArgument(topLeftX > 0 && bottomRightX > 0 && topLeftY > 0 && bottomRightY > 0, "x1, y1, x2, y2 must all be greater than 0");
         this.topLeftX = topLeftX;
         this.topLeftY = topLeftY;
         this.bottomRightX = bottomRightX;
@@ -38,27 +39,28 @@ public class Rectangle implements Drawable {
     @CommandInitializer
     public static Drawable instance(int topLeftX, int topLeftY, int bottomRightX,
             int bottomRightY) {
-        Preconditions.checkArgument(topLeftX > 0 && bottomRightX > 0 && topLeftY > 0 && bottomRightY > 0, "x1, y1, x2, y2 must all be greater than 0");
-        Preconditions.checkArgument(
-                topLeftX < bottomRightX && topLeftY < bottomRightY);
         return new Rectangle(topLeftX, topLeftY, bottomRightX, bottomRightY);
     }
 
     @Override
     public Canvas draw(Canvas canvas) {
+        if (!(topLeftX < bottomRightX && topLeftY < bottomRightY)) {
+            log.warn("invalid top left and bottom right coordinate ({}, {}) and ({}, {})", topLeftX, topLeftY, bottomRightX, bottomRightY);
+            return canvas;
+        }
         Vector<Vector<Point>> current = canvas.getPoints();
         Vector<Vector<Point>> result = current;
 
-        if (!canvas.isColumnDrawable(topLeftX) ||
-                !canvas.isColumnDrawable(bottomRightX)) {
+        if (!canvas.isColumnWithinBoundary(topLeftX) ||
+                !canvas.isColumnWithinBoundary(bottomRightX)) {
             log.warn(
-                    "invalid drawing instruction: rectangle top and bottom x coordinates are out of canvas boundary");
+                    "invalid drawing instruction: rectangle top and bottom x coordinates are out of canvas boundary: 1 to {}", canvas.maxDrawableColumn());
             return canvas;
         }
 
-        if (bottomRightY > canvas.height()) {
+        if (!canvas.isRowWithinBoundary(bottomRightY)) {
             log.warn(
-                    "invalid drawing instruction: rectangle top and bottom y coordinates are out of canvas boundary");
+                    "invalid drawing instruction: rectangle top and bottom y coordinates are out of canvas boundary: 1 to {}", canvas.maxDrawableRow());
             return canvas;
         }
 

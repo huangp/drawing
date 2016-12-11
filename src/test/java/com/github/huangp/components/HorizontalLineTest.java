@@ -15,7 +15,7 @@ public class HorizontalLineTest {
         Canvas canvas = new CanvasImpl(20, 4);
 
         HorizontalLine horizontalLine = new HorizontalLine(1, 6, 2);
-        Canvas after = horizontalLine.draw(canvas);
+        Canvas result = horizontalLine.draw(canvas);
 
         ConsoleSimulator expected = new ConsoleSimulator();
         expected.line("--------------------")
@@ -25,7 +25,39 @@ public class HorizontalLineTest {
                 .line("|                  |")
                 .line("--------------------");
 
-        assertThat(after.toString()).isEqualTo(expected.toString());
+        assertThat(result.toString()).isEqualTo(expected.toString());
+    }
+
+    @Test
+    public void willNotDrawIfColOutsideOfBoundary() {
+        Canvas canvas = new CanvasImpl(20, 4);
+
+        HorizontalLine horizontalLine = new HorizontalLine(1, canvas.maxDrawableColumn() + 1, 2);
+        Canvas result = horizontalLine.draw(canvas);
+
+        assertThat(result).isSameAs(canvas);
+    }
+
+    @Test
+    public void willNotDrawIfRowOutsideOfBoundary() {
+        Canvas canvas = new CanvasImpl(20, 4);
+
+        HorizontalLine horizontalLine = new HorizontalLine(1, 6, canvas.maxDrawableRow() + 1);
+        Canvas result = horizontalLine.draw(canvas);
+
+        assertThat(result).isSameAs(canvas);
+    }
+
+    @Test
+    public void canDrawASinglePoint() {
+        CanvasImpl canvas = new CanvasImpl(3, 1);
+        HorizontalLine line = new HorizontalLine(1, 1, 1);
+        Canvas result = line.draw(canvas);
+        ConsoleSimulator expected = new ConsoleSimulator();
+        expected.line("---")
+                .line("|x|")
+                .line("---");
+        assertThat(result.toString()).isEqualTo(expected.toString());
     }
 
 }

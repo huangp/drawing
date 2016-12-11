@@ -18,7 +18,7 @@ public class VerticalLine implements Drawable {
     private final int colNum;
 
     public VerticalLine(int rowStartNum, int rowEndNum, int colNum) {
-        Preconditions.checkArgument(rowEndNum > rowStartNum);
+        Preconditions.checkArgument(rowEndNum >= rowStartNum);
         Preconditions.checkArgument(colNum > 0);
         this.rowStartNum = rowStartNum;
         this.rowEndNum = rowEndNum;
@@ -30,22 +30,24 @@ public class VerticalLine implements Drawable {
         Vector<Vector<Point>> current = canvas.getPoints();
         Vector<Vector<Point>> newPoints = current;
 
-        if (rowStartNum >= canvas.height() || rowEndNum >= canvas.height()) {
-            log.warn("invalid drawing instruction: row start and end are not within canvas boundary");
+        if (!canvas.isRowWithinBoundary(rowStartNum) || !canvas.isRowWithinBoundary(rowEndNum)) {
+            log.warn("invalid drawing instruction: row start and end are not within canvas boundary: 1 to {}", canvas.maxDrawableRow());
             return canvas;
         }
 
         // assuming line can be drawn on anything except the boundary
-        if (canvas.isColumnDrawable(colNum)) {
-            for (int i = rowStartNum; i <= rowEndNum; i++) {
-                Vector<Point> oldRow = current.get(i);
-                Point oldPoint = oldRow.get(colNum);
-                Vector<Point> newRow = oldRow.replace(oldPoint, new LinePoint());
-                newPoints = newPoints.replace(oldRow, newRow);
-            }
-            return new CanvasImpl(newPoints);
+        if (!canvas.isColumnWithinBoundary(colNum)) {
+            log.warn(
+                    "invalid drawing instruction: column number is not within the canvas boundary: 1 to {}", canvas.maxDrawableColumn());
+            return canvas;
         }
-        log.warn("invalid drawing instruction: column number is not within the canvas boundary");
-        return canvas;
+        for (int i = rowStartNum; i <= rowEndNum; i++) {
+            Vector<Point> oldRow = current.get(i);
+            Point oldPoint = oldRow.get(colNum);
+            Vector<Point> newRow =
+                    oldRow.replace(oldPoint, new LinePoint());
+            newPoints = newPoints.replace(oldRow, newRow);
+        }
+        return new CanvasImpl(newPoints);
     }
 }

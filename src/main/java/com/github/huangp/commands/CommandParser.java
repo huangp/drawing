@@ -12,8 +12,8 @@ import com.github.huangp.components.CanvasImpl;
 import com.github.huangp.components.Drawable;
 import com.github.huangp.components.Line;
 import com.github.huangp.components.Rectangle;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.collection.Array;
@@ -86,7 +86,9 @@ public class CommandParser {
         Tuple2<CommandInstruction, Method> commandInstructionToMethod =
                 entryOpt.get();
         List<String> argsValue = parts.pop();
-        Array<Arg> args = Array.of(commandInstructionToMethod._1().arguments());
+        CommandInstruction cmdInstruction = commandInstructionToMethod._1();
+        log.debug("about to handle: {}", cmdInstruction.drawable().getName());
+        Array<Arg> args = Array.of(cmdInstruction.arguments());
         if (args.length() != argsValue.length()) {
             log.warn("invalid number of arguments: required {}, given {}", args.length(), parts.tail().length());
             return canvas;
@@ -106,9 +108,9 @@ public class CommandParser {
         }
 
         Method factorMethod = instructionToFactoryMethodMap
-                .get(commandInstructionToMethod._1()).get();
+                .get(cmdInstruction).get();
 
-        Drawable drawable = invokeFactoryMethod(factorMethod, values);
+        Drawable drawable = invokeFactoryMethod(factorMethod, values, cmdInstruction.drawable());
         if (drawable instanceof Canvas) {
             canvas = (Canvas) drawable;
         } else if (canvas == null) {
@@ -118,13 +120,18 @@ public class CommandParser {
         return drawable;
     }
 
-    private static Drawable invokeFactoryMethod(Method factorMethod,
-            Array<Object> argValues) {
+    private Drawable invokeFactoryMethod(Method factorMethod,
+            Array<Object> argValues, Class<? extends Drawable> handler) {
         try {
-            return (Drawable) factorMethod.invoke(new Object(), argValues.toJavaArray());
+            return handler.cast(factorMethod.invoke(new Object(), argValues.toJavaArray()));
         } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("can not invoke factory method");
-            throw new RuntimeException(e);
+            // not nice that it's using exception to control flow...
+            if (handler.isAssignableFrom(Canvas.class) && Throwables.getRootCause(e) instanceof IllegalArgumentException) {
+                log.warn("invalid arguments for drawing a canvas");
+            } else {
+                log.error("can not invoke factory method");
+            }
+            return canvas;
         }
     }
 

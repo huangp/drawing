@@ -80,4 +80,21 @@ public class CommandParserTest {
         assertThat(parser.makeDrawable("L 10 5")).isSameAs(canvas);
     }
 
+    @Test
+    public void willCetNothingForInvalidCanvasArguments() {
+        Drawable drawable = parser.makeDrawable("C 1 1");
+        assertThat(drawable).isNull();
+    }
+
+    @Test
+    public void canReplaceCanvasWithNewOne() {
+        Drawable canvas1 = parser.makeDrawable("C 3 1");
+        assertThat(parser.getCanvas()).isSameAs(canvas1);
+
+        Drawable canvas2 = parser.makeDrawable("C 4 2");
+        assertThat(parser.getCanvas()).isSameAs(canvas2);
+
+        assertThat(canvas1).isNotSameAs(canvas2);
+    }
+
 }

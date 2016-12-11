@@ -12,7 +12,7 @@ import com.github.huangp.components.Drawable;
 public @interface CommandInstruction {
     String instruction();
 
-    Class<? extends Drawable> handler();
+    Class<? extends Drawable> drawable();
 
     Arg[] arguments();
 }

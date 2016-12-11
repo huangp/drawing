@@ -4,11 +4,13 @@ import com.github.huangp.components.point.Point;
 import javaslang.collection.Vector;
 
 public interface Canvas extends Drawable {
-    int width();
-    int height();
 
-    boolean isColumnDrawable(int colNum);
+    boolean isColumnWithinBoundary(int colNum);
+    boolean isRowWithinBoundary(int rowNum);
 
     Vector<Vector<Point>> getPoints();
 
+    int maxDrawableColumn();
+
+    int maxDrawableRow();
 }
