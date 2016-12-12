@@ -1,6 +1,8 @@
 package com.github.huangp.components;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.github.huangp.commands.Arg;
 import com.github.huangp.commands.CommandInitializer;
 import com.github.huangp.commands.CommandInstruction;
@@ -20,6 +22,7 @@ import javaslang.collection.Vector;
         @Arg(PositiveIntValueConverter.class)
 })
 public class CanvasImpl implements Canvas {
+    private static final Logger log = LoggerFactory.getLogger(CanvasImpl.class);
 
     private final Vector<Vector<Point>> points;
     private final int height;
@@ -40,6 +43,10 @@ public class CanvasImpl implements Canvas {
 
     @CommandInitializer
     public static Drawable instance(int width, int height) {
+        if (width <= 2 || height <= 0) {
+            log.warn("width must be greater than 2 and height must be greater than 0");
+            return null;
+        }
         return new CanvasImpl(width, height);
     }
 

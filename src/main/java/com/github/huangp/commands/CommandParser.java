@@ -13,7 +13,6 @@ import com.github.huangp.components.Drawable;
 import com.github.huangp.components.Line;
 import com.github.huangp.components.Rectangle;
 import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.collection.Array;
@@ -133,12 +132,7 @@ public class CommandParser {
         try {
             return drawable.cast(factorMethod.invoke(new Object(), argValues.toJavaArray()));
         } catch (IllegalAccessException | InvocationTargetException e) {
-            // not nice that it's using exception to control flow...
-            if (isDrawingCanvas(drawable) && Throwables.getRootCause(e) instanceof IllegalArgumentException) {
-                log.warn("invalid arguments for drawing a canvas");
-            } else {
-                log.error("can not invoke factory method");
-            }
+            log.error("can not invoke factory method");
             return canvas;
         }
     }
